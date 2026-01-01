@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WATTEN – Relevante Trümpfe</title>
+<title>WATTEN – Stichteihenfolge</title>
 
 <style>
 :root {
@@ -11,6 +11,7 @@
     --bg: #f2f2f2;
     --card: #ffffff;
     --accent: #ffe6e6;
+    --section: #e8e8e8;
 }
 
 body {
@@ -38,10 +39,8 @@ h1 {
     color: var(--primary);
 }
 
-.info {
-    background: #fff7d6;
-    border-radius: 12px;
-    padding: 15px;
+h2 {
+    margin-top: 0;
 }
 
 label {
@@ -74,20 +73,29 @@ button {
 ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 li {
     padding: 12px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     border-radius: 10px;
     background: #f9f9f9;
     font-size: 1.1rem;
 }
 
-li.top {
+.section {
+    background: var(--section);
+    font-weight: bold;
+    text-align: center;
+}
+.top {
     background: var(--accent);
     font-weight: bold;
     border-left: 6px solid var(--primary);
+}
+.schlag {
+    background: #eef3ff;
 }
 </style>
 </head>
@@ -97,13 +105,9 @@ li.top {
 <div class="container">
 
     <div class="card">
-        <h1>🃏 WATTEN – Relevante Karten</h1>
-        <div class="info">
-            Angezeigt werden nur die Karten,<br>
-            die im Stich wirklich relevant sind:<br><br>
-            <strong>• Fixe Top-3</strong><br>
-            <strong>• Trümpfe der angesagten Farbe</strong>
-        </div>
+        <h1>🃏 WATTEN – Stichteihenfolge</h1>
+        Sortiert nach echter Watten-Regel:
+        <strong>Kritische → Schläge → Trumpffarbe</strong>
     </div>
 
     <div class="card">
@@ -127,54 +131,56 @@ li.top {
             <option>Schelle</option>
         </select>
 
-        <button onclick="berechne()">Trümpfe anzeigen</button>
+        <button onclick="berechne()">Stichteihenfolge anzeigen</button>
     </div>
 
     <div class="card">
-        <h2>📋 Stichteihenfolge</h2>
+        <h2>📋 Ergebnis</h2>
         <ul id="ergebnis"></ul>
     </div>
 
 </div>
 
 <script>
+const farben = ["Herz", "Schelle", "Eichel", "Gras"];
 const zahlen = ["Ass", "König", "Ober", "Unter", "10", "9", "8", "7"];
 
 function berechne() {
-    const trumpfZahl = document.getElementById("trumpfZahl").value;
+    const schlag = document.getElementById("trumpfZahl").value;
     const trumpfFarbe = document.getElementById("trumpfFarbe").value;
     const liste = document.getElementById("ergebnis");
     liste.innerHTML = "";
 
-    const reihenfolge = [
-        "Herz König",
-        "Schelle 7",
-        "Eichel 7"
-    ];
+    const result = [];
 
-    const trumpfKarten = [];
+    // 1. Fixe Top-3
+    result.push({ text: "Herz König", cls: "top" });
+    result.push({ text: "Schelle 7", cls: "top" });
+    result.push({ text: "Eichel 7", cls: "top" });
 
-    zahlen.forEach(z => {
-        const karte = trumpfFarbe + " " + z;
-        if (!reihenfolge.includes(karte)) {
-            trumpfKarten.push(z);
+    // 2. Schläge
+    farben.forEach(f => {
+        const karte = f + " " + schlag;
+        if (!result.some(k => k.text === karte)) {
+            result.push({ text: karte, cls: "schlag" });
         }
     });
 
-    trumpfKarten.sort((a, b) => {
-        if (a === trumpfZahl) return -1;
-        if (b === trumpfZahl) return 1;
-        return zahlen.indexOf(a) - zahlen.indexOf(b);
+    // 3. Restliche Trumpffarbe
+    zahlen.forEach(z => {
+        const karte = trumpfFarbe + " " + z;
+        if (
+            z !== schlag &&
+            !result.some(k => k.text === karte)
+        ) {
+            result.push({ text: karte, cls: "" });
+        }
     });
 
-    trumpfKarten.forEach(z => {
-        reihenfolge.push(trumpfFarbe + " " + z);
-    });
-
-    reihenfolge.forEach((karte, i) => {
+    result.forEach((k, i) => {
         const li = document.createElement("li");
-        li.textContent = (i + 1) + ". " + karte;
-        if (i < 3) li.classList.add("top");
+        li.textContent = (i + 1) + ". " + k.text;
+        if (k.cls) li.classList.add(k.cls);
         liste.appendChild(li);
     });
 }
