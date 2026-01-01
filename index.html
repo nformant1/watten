@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WATTEN – Relevante Trümpfe</title>
+
+<style>
+:root {
+    --primary: #b30000;
+    --bg: #f2f2f2;
+    --card: #ffffff;
+    --accent: #ffe6e6;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg);
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+
+.card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: var(--primary);
+}
+
+.info {
+    background: #fff7d6;
+    border-radius: 12px;
+    padding: 15px;
+}
+
+label {
+    font-weight: 600;
+    margin-top: 15px;
+    display: block;
+}
+
+select {
+    width: 100%;
+    padding: 14px;
+    font-size: 1.2rem;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    margin-top: 6px;
+}
+
+button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 16px;
+    font-size: 1.3rem;
+    border-radius: 14px;
+    border: none;
+    background: var(--primary);
+    color: white;
+    font-weight: bold;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    background: #f9f9f9;
+    font-size: 1.1rem;
+}
+
+li.top {
+    background: var(--accent);
+    font-weight: bold;
+    border-left: 6px solid var(--primary);
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+        <h1>🃏 WATTEN – Relevante Karten</h1>
+        <div class="info">
+            Angezeigt werden nur die Karten,<br>
+            die im Stich wirklich relevant sind:<br><br>
+            <strong>• Fixe Top-3</strong><br>
+            <strong>• Trümpfe der angesagten Farbe</strong>
+        </div>
+    </div>
+
+    <div class="card">
+        <label>Trumpfzahl (Schlag)</label>
+        <select id="trumpfZahl">
+            <option>Ass</option>
+            <option>König</option>
+            <option>Ober</option>
+            <option>Unter</option>
+            <option>10</option>
+            <option>9</option>
+            <option>8</option>
+            <option>7</option>
+        </select>
+
+        <label>Trumpffarbe</label>
+        <select id="trumpfFarbe">
+            <option>Eichel</option>
+            <option>Gras</option>
+            <option>Herz</option>
+            <option>Schelle</option>
+        </select>
+
+        <button onclick="berechne()">Trümpfe anzeigen</button>
+    </div>
+
+    <div class="card">
+        <h2>📋 Stichteihenfolge</h2>
+        <ul id="ergebnis"></ul>
+    </div>
+
+</div>
+
+<script>
+const zahlen = ["Ass", "König", "Ober", "Unter", "10", "9", "8", "7"];
+
+function berechne() {
+    const trumpfZahl = document.getElementById("trumpfZahl").value;
+    const trumpfFarbe = document.getElementById("trumpfFarbe").value;
+    const liste = document.getElementById("ergebnis");
+    liste.innerHTML = "";
+
+    const reihenfolge = [
+        "Herz König",
+        "Schelle 7",
+        "Eichel 7"
+    ];
+
+    const trumpfKarten = [];
+
+    zahlen.forEach(z => {
+        const karte = trumpfFarbe + " " + z;
+        if (!reihenfolge.includes(karte)) {
+            trumpfKarten.push(z);
+        }
+    });
+
+    trumpfKarten.sort((a, b) => {
+        if (a === trumpfZahl) return -1;
+        if (b === trumpfZahl) return 1;
+        return zahlen.indexOf(a) - zahlen.indexOf(b);
+    });
+
+    trumpfKarten.forEach(z => {
+        reihenfolge.push(trumpfFarbe + " " + z);
+    });
+
+    reihenfolge.forEach((karte, i) => {
+        const li = document.createElement("li");
+        li.textContent = (i + 1) + ". " + karte;
+        if (i < 3) li.classList.add("top");
+        liste.appendChild(li);
+    });
+}
+</script>
+
+</body>
+</html>
